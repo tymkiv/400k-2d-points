@@ -1,0 +1,61 @@
+---
+title: Index page
+---
+{% extends "layouts/_layout.html" %}
+
+{% block content %}
+	
+    <div id="root"></div>
+    
+    <style>
+        #root {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        precision highp float;
+
+		attribute vec3 position;
+		attribute vec3 source;
+		attribute vec3 target;
+
+		uniform mat4 modelViewMatrix;
+		uniform mat4 projectionMatrix;
+
+		uniform float size;
+		uniform float blend;
+		uniform sampler2D sourceTex;
+		uniform sampler2D targetTex;
+		uniform vec2 dimensions;
+
+		varying vec3 vColor;
+		void main() {
+
+			vColor = vec3(1., 1., 1.);
+			
+			vec3 p = mix(source, target, blend);
+
+            vec4 mvPosition = modelViewMatrix * vec4(p, 1.);
+            gl_PointSize = size * (1. / - mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+
+		}
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision highp float;
+        varying vec3 vColor;
+        uniform vec2 u_resolution;
+        uniform vec2 u_mouse;
+		uniform float u_time;
+		uniform sampler2D dot;
+
+        void main() {
+            vec2 st = gl_FragCoord.xy/u_resolution;           
+			vec4 color = texture2D(dot, gl_PointCoord);
+            gl_FragColor = color;
+        }
+    </script>
+{% endblock %}
